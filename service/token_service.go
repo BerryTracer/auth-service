@@ -25,22 +25,22 @@ type TokenServiceImpl struct {
 	SigningKey string
 }
 
+// GenerateAccessToken implements TokenService.
 func (s *TokenServiceImpl) GenerateAccessToken(_ context.Context, userID string, additionalClaims map[string]interface{}) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userID,
 		"exp":     time.Now().Add(AccessTokenDuration).Unix(),
 	}
 
-	if additionalClaims != nil {
-		for key, value := range additionalClaims {
-			claims[key] = value
-		}
+	for key, value := range additionalClaims {
+		claims[key] = value
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(s.SigningKey))
 }
 
+// GenerateRefreshToken implements TokenService.
 func (s *TokenServiceImpl) GenerateRefreshToken(_ context.Context, userID string) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userID,

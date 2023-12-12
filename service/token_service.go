@@ -25,7 +25,7 @@ type TokenServiceImpl struct {
 	SigningKey string
 }
 
-func (s *TokenServiceImpl) GenerateAccessToken(ctx context.Context, userID string, additionalClaims map[string]interface{}) (string, error) {
+func (s *TokenServiceImpl) GenerateAccessToken(_ context.Context, userID string, additionalClaims map[string]interface{}) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userID,
 		"exp":     time.Now().Add(AccessTokenDuration).Unix(),
@@ -41,7 +41,7 @@ func (s *TokenServiceImpl) GenerateAccessToken(ctx context.Context, userID strin
 	return token.SignedString([]byte(s.SigningKey))
 }
 
-func (s *TokenServiceImpl) GenerateRefreshToken(ctx context.Context, userID string) (string, error) {
+func (s *TokenServiceImpl) GenerateRefreshToken(_ context.Context, userID string) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userID,
 		"exp":     time.Now().Add(RefreshTokenDuration).Unix(),
@@ -53,9 +53,9 @@ func (s *TokenServiceImpl) GenerateRefreshToken(ctx context.Context, userID stri
 }
 
 // ValidateToken implements TokenService.
-func (t *TokenServiceImpl) ValidateToken(ctx context.Context, tokenStr string) (bool, map[string]interface{}, error) {
+func (s *TokenServiceImpl) ValidateToken(_ context.Context, tokenStr string) (bool, map[string]interface{}, error) {
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-		return []byte(t.SigningKey), nil
+		return []byte(s.SigningKey), nil
 	})
 
 	if err != nil {
@@ -70,8 +70,8 @@ func (t *TokenServiceImpl) ValidateToken(ctx context.Context, tokenStr string) (
 }
 
 // RefreshToken implements TokenService.
-func (t *TokenServiceImpl) RefreshToken(ctx context.Context, tokenStr string) (*model.Token, error) {
-	isValid, claims, err := t.ValidateToken(ctx, tokenStr)
+func (s *TokenServiceImpl) RefreshToken(ctx context.Context, tokenStr string) (*model.Token, error) {
+	isValid, claims, err := s.ValidateToken(ctx, tokenStr)
 
 	if err != nil {
 		return nil, err
@@ -83,13 +83,13 @@ func (t *TokenServiceImpl) RefreshToken(ctx context.Context, tokenStr string) (*
 
 	userID := claims["user_id"].(string)
 
-	accessToken, err := t.GenerateAccessToken(ctx, userID, nil)
+	accessToken, err := s.GenerateAccessToken(ctx, userID, nil)
 
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := t.GenerateRefreshToken(ctx, userID)
+	refreshToken, err := s.GenerateRefreshToken(ctx, userID)
 
 	if err != nil {
 		return nil, err

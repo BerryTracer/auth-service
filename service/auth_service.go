@@ -5,7 +5,7 @@ import (
 
 	"github.com/BerryTracer/auth-service/model"
 	"github.com/BerryTracer/common-service/crypto"
-	user_service "github.com/BerryTracer/user-service/grpc/proto"
+	userservice "github.com/BerryTracer/user-service/grpc/proto"
 )
 
 type AuthService interface {
@@ -16,12 +16,12 @@ type AuthService interface {
 }
 
 type AuthServiceImpl struct {
-	UserService    user_service.UserServiceClient
+	UserService    userservice.UserServiceClient
 	TokenService   TokenService
 	PasswordHasher crypto.PasswordHasher
 }
 
-func NewAuthServiceImpl(userService user_service.UserServiceClient, tokenService TokenService, passwordHasher crypto.PasswordHasher) *AuthServiceImpl {
+func NewAuthServiceImpl(userService userservice.UserServiceClient, tokenService TokenService, passwordHasher crypto.PasswordHasher) *AuthServiceImpl {
 	return &AuthServiceImpl{
 		UserService:    userService,
 		TokenService:   tokenService,
@@ -31,7 +31,7 @@ func NewAuthServiceImpl(userService user_service.UserServiceClient, tokenService
 
 // SignUp implements AuthService.
 func (a *AuthServiceImpl) SignUp(ctx context.Context, email string, username string, password string) (*model.Token, error) {
-	user, err := a.UserService.CreateUser(ctx, &user_service.CreateUserRequest{
+	user, err := a.UserService.CreateUser(ctx, &userservice.CreateUserRequest{
 		Email:    email,
 		Username: username,
 		Password: password,
@@ -63,7 +63,7 @@ func (a *AuthServiceImpl) SignUp(ctx context.Context, email string, username str
 
 // SignIn implements AuthService.
 func (a *AuthServiceImpl) SignIn(ctx context.Context, email string, password string) (*model.Token, error) {
-	user, err := a.UserService.GetUserByEmail(ctx, &user_service.GetUserByEmailRequest{
+	user, err := a.UserService.GetUserByEmail(ctx, &userservice.GetUserByEmailRequest{
 		Email: email,
 	})
 

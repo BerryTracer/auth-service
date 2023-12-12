@@ -4,24 +4,35 @@ import (
 	"github.com/BerryTracer/auth-service/grpc/server"
 	"github.com/BerryTracer/auth-service/service"
 	"github.com/BerryTracer/common-service/crypto"
-	user_service "github.com/BerryTracer/user-service/grpc/proto"
+	userservice "github.com/BerryTracer/user-service/grpc/proto"
+	"log"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
+	// Connect to gRPC server
 	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 	if err != nil {
 		panic(err)
 	}
-	defer conn.Close()
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}(conn)
 
-	userServiceClient := user_service.NewUserServiceClient(conn)
+	// Create services
+	userServiceClient := userservice.NewUserServiceClient(conn)
 	tokenService := service.NewTokenService("secret")
 	passwordHasher := crypto.NewBcryptHasher()
-
 	authService := service.NewAuthServiceImpl(userServiceClient, tokenService, passwordHasher)
 
-	server.NewAuthGRPCServer(authService).Run(":50052")
+	// Run gRPC server
+	err = server.NewAuthGRPCServer(authService).Run(":50052")
+	if err != nil {
+		log.Fatalln(err)
+	}
 }

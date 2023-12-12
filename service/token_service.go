@@ -101,6 +101,7 @@ func (s *TokenServiceImpl) RefreshToken(ctx context.Context, tokenStr string) (*
 	}, nil
 }
 
+// NewTokenService creates a new TokenService.
 func NewTokenService(signingKey string) *TokenServiceImpl {
 	return &TokenServiceImpl{SigningKey: signingKey}
 }

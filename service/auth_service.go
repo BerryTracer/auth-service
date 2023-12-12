@@ -21,6 +21,7 @@ type AuthServiceImpl struct {
 	PasswordHasher crypto.PasswordHasher
 }
 
+// NewAuthServiceImpl creates a new AuthServiceImpl.
 func NewAuthServiceImpl(userService userservice.UserServiceClient, tokenService TokenService, passwordHasher crypto.PasswordHasher) *AuthServiceImpl {
 	return &AuthServiceImpl{
 		UserService:    userService,

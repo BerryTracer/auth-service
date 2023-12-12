@@ -15,7 +15,7 @@ func main() {
 	// Connect to gRPC server
 	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	defer func(conn *grpc.ClientConn) {
 		err := conn.Close()
